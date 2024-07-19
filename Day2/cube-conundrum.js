@@ -35,7 +35,42 @@ fs.readFile(filePath, "utf8", (err, data) => {
     return result;
   }
 
+  function checkRounds(games) {
+    const limits = {
+      red: 12,
+      green: 13,
+      blue: 14,
+    };
+
+    games.forEach((game) => {
+      game.rounds.forEach((round, index) => {
+        const counts = {
+          red: 0,
+          green: 0,
+          blue: 0,
+        };
+
+        round.forEach((item) => {
+          if (counts.hasOwnProperty(item.color)) {
+            counts[item.color] += item.count;
+          }
+        });
+
+        const isValie =
+          counts.red <= limits.red &&
+          counts.green <= limits.green &&
+          counts.blue <= limits.blue;
+        console.log(
+          `Game ${game.gameNumber}, Round ${index + 1}: ${
+            isValie ? "Valid" : "Invalid"
+          }`
+        );
+      });
+    });
+  }
+
   const parsedData = parseData(data);
 
-  console.log(JSON.stringify(parsedData, null, 2));
+  //console.log(JSON.stringify(parsedData, null, 2));
+  console.log(checkRounds(parsedData));
 });
