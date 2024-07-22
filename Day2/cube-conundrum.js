@@ -42,7 +42,11 @@ fs.readFile(filePath, "utf8", (err, data) => {
       blue: 14,
     };
 
+    const validGameNumbers = [];
+
     games.forEach((game) => {
+      let allRoundsValid = true;
+
       game.rounds.forEach((round, index) => {
         const counts = {
           red: 0,
@@ -56,21 +60,45 @@ fs.readFile(filePath, "utf8", (err, data) => {
           }
         });
 
-        const isValie =
+        const isValid =
           counts.red <= limits.red &&
           counts.green <= limits.green &&
           counts.blue <= limits.blue;
-        console.log(
-          `Game ${game.gameNumber}, Round ${index + 1}: ${
-            isValie ? "Valid" : "Invalid"
-          }`
-        );
+
+        if (!isValid) {
+          allRoundsValid = false;
+        }
+
+        // console.log(
+        //   `Game ${game.gameNumber}, Round ${index + 1}: ${
+        //     isValid ? "Valid" : "Invalid"
+        //   }`
+        // );
       });
+
+      if (allRoundsValid) {
+        validGameNumbers.push(game.gameNumber);
+      }
     });
+
+    return validGameNumbers;
+  }
+
+  function extractNumbersAndSum(str) {
+    if (typeof str !== "string") {
+      throw new TypeError("Input must be a string");
+    }
+    return (str.match(/\d+/g) || [])
+      .map(Number)
+      .reduce((sum, num) => sum + num, 0);
   }
 
   const parsedData = parseData(data);
 
   //console.log(JSON.stringify(parsedData, null, 2));
-  console.log(checkRounds(parsedData));
+  const validGames = checkRounds(parsedData);
+  //console.log(validGames);
+
+  const sumOfNumbers = extractNumbersAndSum(validGames.join(" "));
+  console.log(sumOfNumbers);
 });
