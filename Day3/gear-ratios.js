@@ -14,7 +14,7 @@ fs.readFile(filePath, "utf8", (err, data) => {
     return symbols.includes(cell);
   }
 
-  function isNextToSymbol(grid, row, startCol, endCol) {
+  function isNextToSymbol(grid, row, col) {
     const directions = [
       [-1, 0],
       [1, 0],
@@ -26,20 +26,18 @@ fs.readFile(filePath, "utf8", (err, data) => {
       [1, 1],
     ];
 
-    for (let col = startCol; col <= endCol; col++) {
-      for (const [dRow, dCol] of directions) {
-        const newRow = row + dRow;
-        const newCol = col + dCol;
+    for (const [dRow, dCol] of directions) {
+      const newRow = row + dRow;
+      const newCol = col + dCol;
 
-        if (
-          newRow >= 0 &&
-          newRow < grid.length &&
-          newCol >= 0 &&
-          newCol < grid[0].length
-        ) {
-          if (isSymbol(grid[newRow][newCol])) {
-            return true;
-          }
+      if (
+        newRow >= 0 &&
+        newRow < grid.length &&
+        newCol >= 0 &&
+        newCol < grid[0].length
+      ) {
+        if (isSymbol(grid[newRow][newCol])) {
+          return true;
         }
       }
     }
@@ -52,9 +50,10 @@ fs.readFile(filePath, "utf8", (err, data) => {
 
   const grid = lines.map((line) => line.split(""));
 
+  let totalSum = 0;
+
   for (let row = 0; row < grid.length; row++) {
-    let col = 0;
-    while (col < grid[row].length) {
+    for (let col = 0; col < grid[row].length; col++) {
       if (!isNaN(grid[row][col]) && grid[row][col].trim() !== "") {
         let startCol = col;
 
@@ -69,12 +68,24 @@ fs.readFile(filePath, "utf8", (err, data) => {
         let endCol = col - 1;
         let number = grid[row].slice(startCol, endCol + 1).join("");
 
-        if (isNextToSymbol(grid, row, startCol, endCol)) {
+        const numValue = parseInt(number, 10);
+
+        let isPartNumber = false;
+        for (let checkCol = startCol; checkCol <= endCol; checkCol++) {
+          if (isNextToSymbol(grid, row, checkCol)) {
+            isPartNumber = true;
+            break;
+          }
+        }
+
+        if (isPartNumber) {
+          totalSum += numValue;
           console.log(number);
         }
-      } else {
-        col++;
+
+        col = endCol;
       }
     }
   }
+  console.log("Total sum:", totalSum);
 });
